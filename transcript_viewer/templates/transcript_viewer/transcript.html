@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyBK GPA Tracker - Làm chủ điểm số</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #166534;
+            --error-color: #ef4444;
+            --accent-bg: #eff6ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; scroll-behavior: smooth; }
+        
+        a { text-decoration: none; color: inherit; transition: 0.2s; }
+
+        /* --- SECTION 1: HEADER --- */
+        header {
+            background: var(--card-bg);
+            padding: 12px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            min-height: 70px;
+        }
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 1.3rem; 
+            font-weight: 700; 
+            color: var(--primary-color);
+            line-height: 1;
+        }
+        .logo span { font-size: 1.8rem; line-height: 1; }
+        
+        nav { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        .nav-link { 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            color: var(--secondary-color); 
+            display: flex;
+            align-items: center;
+            height: 40px;
+        }
+        .nav-link:hover { 
+            background-color: var(--accent-bg); 
+            color: var(--primary-color); 
+        }
+        
+        .btn-nav { 
+            background: var(--primary-color); 
+            color: white !important; 
+            padding: 0 24px; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            margin-left: 10px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+        .btn-nav:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3); }
+
+        /* --- SECTION 2: HERO --- */
+        .hero {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 15px; font-weight: 800; letter-spacing: -0.5px; }
+        .hero p { opacity: 0.9; font-size: 1.1rem; margin-bottom: 40px; }
+        
+        /* --- ENHANCED PASTE BOX --- */
+        .paste-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            max-width: 850px;
+            margin: 0 auto 40px;
+            text-align: left;
+        }
+        .paste-box:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .paste-textarea {
+            width: 100%; 
+            height: 140px; 
+            background: transparent; 
+            border: none; 
+            color: #ffffff; 
+            outline: none; 
+            padding: 20px; 
+            font-family: inherit; 
+            resize: vertical;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .paste-textarea::placeholder { color: rgba(255, 255, 255, 0.5); font-style: italic; }
+
+        .btn-analyze {
+            background: #ffffff; 
+            color: var(--primary-color); 
+            font-weight: 700;
+            padding: 12px 30px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        .btn-analyze:hover { background: #f8fafc; transform: scale(1.03); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .step-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 16px;
+            flex: 1;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: left;
+        }
+        .step-card .icon { font-size: 2rem; margin-bottom: 15px; display: block; }
+        .step-card h4 { margin-bottom: 10px; font-size: 1.1rem; font-weight: 700; }
+        .step-card p { font-size: 0.9rem; margin-bottom: 0; opacity: 0.85; line-height: 1.5; }
+
+        /* --- SECTION 3: MAIN WORKSPACE --- */
+        .workspace {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .main-col { flex: 7; }
+        .side-col { flex: 3; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        /* --- ENHANCED FORM STYLES --- */
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1.2fr 2.5fr 0.8fr 1fr 1fr auto; 
+            gap: 15px; 
+            align-items: end; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            font-size: 0.75rem; 
+            margin-bottom: 8px; 
+            font-weight: 800; 
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 2px solid #f1f5f9; 
+            border-radius: 12px; 
+            outline: none; 
+            font-size: 0.95rem;
+            background-color: #f8fafc;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus { 
+            border-color: var(--primary-color); 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-add-main {
+            height: 48px;
+            padding: 0 25px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-add-main:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        /* Table Styling */
+        .table-wrap { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #f8fafc; padding: 15px; font-size: 0.8rem; text-transform: uppercase; color: var(--secondary-color); font-weight: 700; letter-spacing: 0.5px; }
+        td { padding: 15px; border-top: 1px solid var(--border-color); font-size: 0.95rem; }
+        
+        .score-pill { padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; }
+        .s10 { background: #e0f2fe; color: #0369a1; }
+        .s4 { background: #f0fdf4; color: #166534; }
+        
+        .side-table th, .side-table td { padding: 10px; font-size: 0.85rem; text-align: center; }
+        .sticky-side { position: sticky; top: 90px; }
+
+        .btn { padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; border: none; font-size: 0.85rem; transition: 0.2s; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-edit { background: #f1f5f9; color: var(--primary-color); }
+        .btn-edit:hover { background: var(--accent-bg); }
+        .btn-save { background: #22c55e; color: white; }
+        .btn-cancel { background: #f1f5f9; color: var(--secondary-color); }
+        
+        .hidden { display: none !important; }
+        tr.editing { background: #eff6ff; }
+        .edit-input { width: 100%; padding: 8px; border: 2px solid var(--primary-color); border-radius: 6px; font-family: inherit; font-size: 0.9rem; }
+
+        /* --- SECTION 4: FOOTER --- */
+        footer {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 60px 20px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        footer p { margin-bottom: 10px; }
+        footer strong { color: white; }
+
+        @media (max-width: 1200px) {
+            .workspace { flex-direction: column; }
+            .side-col { width: 100%; }
+            .form-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+            .btn-add-main { width: 100%; }
+        }
+        @media (max-width: 768px) {
+            .steps { flex-direction: column; }
+            header { padding: 12px 20px; }
+            .hero h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SECTION 1: HEADER -->
+    <header>
+        <div class="logo">
+            <span>🎓</span> MyBK GPA Tracker
+        </div>
+        <nav>
+            <a href="#instructions" class="nav-link">Hướng dẫn</a>
+            <a href="#conversion-table" class="nav-link">Bảng quy đổi</a>
+            <a href="#" class="btn-nav">Nhập dữ liệu ngay</a>
+        </nav>
+    </header>
+
+    <!-- SECTION 2: HERO -->
+    <section class="hero" id="instructions">
+        <div class="container">
+            <h1>Làm chủ điểm số, vững bước tương lai</h1>
+            <p>Dán nội dung trang "Kết quả học tập" từ MyBK vào ô dưới đây để phân tích GPA tức thì.</p>
+
+            <div class="paste-box">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="paste">
+                    <textarea name="raw_text" class="paste-textarea" 
+                              placeholder="Bước 1: Truy cập MyBK > Kết quả học tập.&#10;Bước 2: Nhấn Ctrl + A rồi Ctrl + C.&#10;Bước 3: Dán (Ctrl + V) vào đây..."></textarea>
+                    <div style="padding: 15px 25px; text-align: right; background: rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500;">⚡ Xử lý dữ liệu tức thì, bảo mật 100%</span>
+                        <button type="submit" class="btn-analyze">🚀 Bắt đầu phân tích</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="steps">
+                <div class="step-card">
+                    <span class="icon">📋</span>
+                    <h4>Bước 1</h4>
+                    <p>Sao chép toàn bộ nội dung từ trang <strong>Kết quả học tập</strong> MyBK.</p>
+                </div>
+                <div class="step-card">
+                    <span class="icon">⚙️</span>
+                    <h4>Bước 2</h4>
+                    <p>Dán vào ô trên và nhấn <strong>Phân tích</strong> để làm sạch dữ liệu.</p>
+                </div>
+                <div class="step-card">
+                    <span class="icon">🚀</span>
+                    <h4>Bước 3</h4>
+                    <p>Chỉnh sửa, thêm môn giả định và theo dõi GPA tích lũy.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: MAIN WORKSPACE -->
+    <main class="workspace">
+        <div class="main-col">
+            {% if student_name %}
+            <!-- Student & GPA Info -->
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2 style="font-size: 1.7rem; margin-bottom: 8px;">{{ student_name }}</h2>
+                    <p style="color: var(--secondary-color); font-weight: 600; font-size: 1.05rem;">MSSV: {{ student_id }} | Tín chỉ tích lũy: {{ total_credits }}</p>
+                    <form method="POST" style="margin-top: 20px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="clear">
+                        <button type="submit" class="btn btn-edit" style="font-size: 0.85rem; padding: 10px 18px;" onclick="return confirm('Xóa tất cả dữ liệu?')">🔄 Xóa dữ liệu & làm lại</button>
+                    </form>
+                </div>
+                <div style="text-align: center; background: var(--accent-bg); padding: 20px 35px; border-radius: 20px; border: 2px solid var(--primary-color);">
+                    <span style="font-size: 3rem; font-weight: 900; color: var(--primary-color); display: block; line-height: 1;">{{ overall_gpa }}</span>
+                    <span style="font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--secondary-color); margin-top: 8px; display: block; letter-spacing: 1px;">GPA Tích lũy</span>
+                </div>
+            </div>
+
+            <!-- Add Course Form -->
+            <div class="card">
+                <h3 style="margin-bottom: 25px; font-size: 1.25rem; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: var(--accent-bg); color: var(--primary-color); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1rem;">➕</span> 
+                    Thêm môn học giả định
+                </h3>
+                <form method="POST" class="form-grid">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Mã môn</label>
+                        <input type="text" name="code" placeholder="CO1023" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tên môn học</label>
+                        <input type="text" name="name" placeholder="Hệ thống số" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số TC</label>
+                        <input type="number" name="credits" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hệ 10</label>
+                        <input type="number" step="0.1" name="score10" placeholder="0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Hệ 4</label>
+                        <input type="number" step="0.5" name="score4" placeholder="0.0">
+                    </div>
+                    <button type="submit" class="btn-add-main">Lưu môn học</button>
+                </form>
+            </div>
+
+            <!-- Detailed Table -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 25px 30px; border-bottom: 1px solid var(--border-color); background: #ffffff;">
+                    <h3 style="font-size: 1.25rem; font-weight: 800;">📊 Chi tiết bảng điểm (A-Z)</h3>
+                </div>
+                <div class="table-wrap" style="border: none; border-radius: 0;">
+                    <table id="subjects-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%">Mã môn</th>
+                                <th style="width: 35%">Tên môn học</th>
+                                <th style="width: 10%; text-align: center;">Số TC</th>
+                                <th style="width: 12%">Hệ 10</th>
+                                <th style="width: 12%">Hệ 4</th>
+                                <th style="width: 8%">Chữ</th>
+                                <th style="width: 8%">Sửa</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in subjects %}
+                                <tr id="row-{{ sub.course_code }}">
+                                    <!-- VIEW -->
+                                    <td class="view-cell" style="font-family: monospace; font-weight: 700; color: var(--primary-color);">{{ sub.course_code }}</td>
+                                    <td class="view-cell" style="font-weight: 600;">{{ sub.course_name }}</td>
+                                    <td class="view-cell" style="text-align: center; font-weight: 800; font-size: 1.1rem; color: #1e293b;">{{ sub.credits }}</td>
+                                    <td class="view-cell"><span class="score-pill s10">{{ sub.score|default:"-" }}</span></td>
+                                    <td class="view-cell"><span class="score-pill s4">{{ sub.score_4|default:"-" }}</span></td>
+                                    <td class="view-cell" style="font-weight: 800; text-align: center; color: var(--text-main);">{{ sub.letter_grade }}</td>
+                                    
+                                    <!-- EDIT -->
+                                    <td class="edit-cell hidden"><input type="text" class="edit-input" value="{{ sub.course_code }}" readonly></td>
+                                    <td class="edit-cell hidden"><input type="text" class="edit-input val-name" value="{{ sub.course_name }}"></td>
+                                    <td class="edit-cell hidden"><input type="number" class="edit-input val-credits" value="{{ sub.credits }}"></td>
+                                    <td class="edit-cell hidden"><input type="number" step="0.1" class="edit-input val-s10" value="{{ sub.score|default:'' }}"></td>
+                                    <td class="edit-cell hidden"><input type="number" step="0.5" class="edit-input val-s4" value="{{ sub.score_4|default:'' }}"></td>
+                                    <td class="edit-cell hidden" style="text-align: center;">-</td>
+
+                                    <td style="display: flex; gap: 8px;">
+                                        <button class="btn btn-edit btn-edit-trigger" onclick="toggleEdit('{{ sub.course_code }}')">Sửa</button>
+                                        <button class="btn btn-save hidden btn-save-trigger" onclick="saveEdit('{{ sub.course_code }}')">Lưu</button>
+                                        <button class="btn btn-cancel hidden btn-cancel-trigger" onclick="toggleEdit('{{ sub.course_code }}')">Hủy</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="card" style="text-align: center; padding: 60px 20px; color: var(--secondary-color);">
+                <span style="font-size: 4rem; display: block; margin-bottom: 25px;">📂</span>
+                <h3 style="color: var(--text-main); margin-bottom: 10px;">Chưa có dữ liệu phân tích</h3>
+                <p>Hãy thực hiện sao chép bảng điểm từ MyBK và dán vào ô phía trên để bắt đầu.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar (30%) -->
+        <div class="side-col" id="conversion-table">
+            <div class="card sticky-side">
+                <h3 style="margin-bottom: 20px; font-size: 1.1rem; border-bottom: 3px solid var(--primary-color); display: inline-block; padding-bottom: 5px;">📑 Bảng quy đổi điểm</h3>
+                <div class="table-wrap">
+                    <table class="side-table">
+                        <thead>
+                            <tr>
+                                <th>Hệ 10</th>
+                                <th>Chữ</th>
+                                <th>Hệ 4</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>9.0 - 10.0</td><td><strong style="color: #10b981;">A+</strong></td><td>4.0</td></tr>
+                            <tr><td>8.5 - 8.9</td><td><strong style="color: #10b981;">A</strong></td><td>4.0</td></tr>
+                            <tr><td>8.0 - 8.4</td><td><strong style="color: #3b82f6;">B+</strong></td><td>3.5</td></tr>
+                            <tr><td>7.0 - 7.9</td><td><strong style="color: #3b82f6;">B</strong></td><td>3.0</td></tr>
+                            <tr><td>6.5 - 6.9</td><td><strong style="color: #f59e0b;">C+</strong></td><td>2.5</td></tr>
+                            <tr><td>5.5 - 6.4</td><td><strong style="color: #f59e0b;">C</strong></td><td>2.0</td></tr>
+                            <tr><td>5.0 - 5.4</td><td><strong style="color: #ef4444;">D+</strong></td><td>1.5</td></tr>
+                            <tr><td>4.0 - 4.9</td><td><strong style="color: #ef4444;">D</strong></td><td>1.0</td></tr>
+                            <tr><td>< 4.0</td><td><strong style="color: #64748b;">F</strong></td><td>0.0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 25px; padding: 15px; background: #fffbeb; border-radius: 12px; border: 1px solid #fef3c7; font-size: 0.85rem; color: #92400e;">
+                    <p>💡 <strong>Lưu ý:</strong> Điểm A+ và A đều quy đổi về 4.0 nhưng có ý nghĩa khác nhau trong một số xét duyệt học bổng và rèn luyện.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SECTION 4: FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 <strong>MyBK GPA Tracker</strong>. Đã đăng ký bản quyền.</p>
+            <p>Phát triển bởi <strong>Phan Ngọc Hòa</strong> | Khoa Khoa học và Kỹ thuật Máy tính</p>
+        </div>
+    </footer>
+
+    <!-- Hidden form for submission -->
+    <form id="hidden-form" method="POST" style="display: none;">
+        {% csrf_token %}
+        <input type="hidden" name="code" id="h-code">
+        <input type="hidden" name="name" id="h-name">
+        <input type="hidden" name="credits" id="h-credits">
+        <input type="hidden" name="score10" id="h-s10">
+        <input type="hidden" name="score4" id="h-s4">
+    </form>
+
+    <script>
+        function toggleEdit(code) {
+            const row = document.getElementById('row-' + code);
+            const viewCells = row.querySelectorAll('.view-cell');
+            const editCells = row.querySelectorAll('.edit-cell');
+            const editBtn = row.querySelector('.btn-edit-trigger');
+            const saveBtn = row.querySelector('.btn-save-trigger');
+            const cancelBtn = row.querySelector('.btn-cancel-trigger');
+
+            const isEditing = !saveBtn.classList.contains('hidden');
+
+            if (isEditing) {
+                viewCells.forEach(c => c.classList.remove('hidden'));
+                editCells.forEach(c => c.classList.add('hidden'));
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+                row.classList.remove('editing');
+            } else {
+                viewCells.forEach(c => c.classList.add('hidden'));
+                editCells.forEach(c => c.classList.remove('hidden'));
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+                row.classList.add('editing');
+            }
+        }
+
+        function saveEdit(code) {
+            const row = document.getElementById('row-' + code);
+            const name = row.querySelector('.val-name').value;
+            const credits = row.querySelector('.val-credits').value;
+            const s10 = row.querySelector('.val-s10').value;
+            const s4 = row.querySelector('.val-s4').value;
+
+            document.getElementById('h-code').value = code;
+            document.getElementById('h-name').value = name;
+            document.getElementById('h-credits').value = credits;
+            document.getElementById('h-s10').value = s10;
+            document.getElementById('h-s4').value = s4;
+
+            document.getElementById('hidden-form').submit();
+        }
+    </script>
+</body>
+</html>
